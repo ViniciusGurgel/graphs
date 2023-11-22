@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 '''
-app.config['DATABASE'] = ''
+app.config['DATABASE'] = "mysql+mysqlconnector://root:uniceub@localhost/felicidade?charset=utf8mb4"
 db = SQLAlchemy(app)
 
 class TipoOcorrencia(db.Model):
