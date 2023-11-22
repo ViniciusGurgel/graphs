@@ -1,32 +1,26 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.automap import automap_base
 
 app = Flask(__name__)
 '''
-app.config['DATABASE'] = "mysql+mysqlconnector://root:uniceub@localhost/felicidade?charset=utf8mb4"
-db = SQLAlchemy(app)
+engine = create_engine("mysql+mysqlconnector://root:Gatitcha1!@localhost/teste?charset=utf8mb4")
 
-class TipoOcorrencia(db.Model):
-    __tablename__ = 'tb_tipo_ocorrencia'
+DB = automap_base()
+DB.prepare(autoload_with=engine)
+Ocorrencias = DB.classes.tb_ocorrencia
+TipoOcorrencia = DB.classes.tb_tipo_ocorrencia
 
-    id_tipo_ocorrencia = db.Column(db.Integer, primary_key=True)
-    tipo_ocorrencia_nome = db.Column(db.String(45), unique=True)
-    # Add other columns as needed
-
-class Ocorrencia(db.Model):
-    __tablename__ = 'tb_ocorrencia'
-
-    id_ocorrencia = db.Column(db.Integer, primary_key=True)
-    id_tipo_ocorrencia_fk = db.Column(db.Integer, db.ForeignKey('tb_tipo_ocorrencia.id_tipo_ocorrencia'))
+session_factory = sessionmaker(bind=engine)
+ses = session_factory() 
 '''
-
-
 
 @app.route("/")
 def home():
     '''
-    result = db.session.query(TipoOcorrencia.tipo_ocorrencia_nome, db.func.count(Ocorrencia.id_ocorrencia).label('total')).\
-        join(Ocorrencia, Ocorrencia.id_tipo_ocorrencia_fk == TipoOcorrencia.id_tipo_ocorrencia).\
+    result = ses.query(TipoOcorrencia.tipo_ocorrencia_nome, func.count(Ocorrencias.id_ocorrencia).label('total')).\
+        join(Ocorrencias, Ocorrencias.id_tipo_ocorrencia_fk == TipoOcorrencia.id_tipo_ocorrencia).\
         group_by(TipoOcorrencia.tipo_ocorrencia_nome).all()
     labels = [row.tipo_ocorrencia_nome for row in result]
     values = [row.total for row in result]
